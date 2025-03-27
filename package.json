@@ -1,0 +1,22 @@
+{
+  "name": "rajdalsaniyaproject3",
+  "version": "1.0.0",
+  "description": "Project 3 Database Integration with MongoDB",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raj Dalsaniya",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "fs": "^0.0.1-security",
+    "method-override": "^3.0.0",
+    "mongoose": "^8.13.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.2",
+    "path": "^0.12.7"
+  }
+}

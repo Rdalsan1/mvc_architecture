@@ -1,0 +1,30 @@
+<%- include('../partials/header') %>
+
+<main>
+  <h1>All Items</h1>
+
+  <div class="items-container">
+    <% items.forEach(item => { %> 
+      <div class="item-card">
+        <a href="/items/<%= item._id %>">
+          <img height="400px" src="/images/uploads/<%= item.image %>" alt="<%= item.title %>">
+        </a>
+        <h2><%= item.title %></h2>
+        <p><strong>Seller:</strong> <%= item.seller %></p>
+        <p><strong>Condition:</strong> <%= item.condition %></p>
+        <p><strong>Price:</strong> $<%= item.price %></p>
+        <p><strong>Details:</strong> <%= item.details %></p>
+        <p><strong>Active:</strong> <%= item.active ? 'Yes' : 'No' %></p>
+
+        <a href="/items/<%= item._id %>" class="btn btn-view">View</a>
+        <a href="/items/<%= item._id %>/edit" class="btn btn-edit">Edit</a>
+
+        <form action="/items/<%= item._id %>?_method=DELETE" method="POST">
+          <button type="submit">Delete</button>
+        </form>
+      </div>
+    <% }); %> 
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

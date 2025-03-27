@@ -1,0 +1,50 @@
+<%- include('../partials/header') %>
+
+<main>
+    <div class="container mt-5">
+        <h2 class="text-center">Add New Item</h2>
+
+        <form action="/items" method="POST" enctype="multipart/form-data" class="mt-4">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" id="title" name="title" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="seller" class="form-label">Seller</label>
+                <input type="text" id="seller" name="seller" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="condition" class="form-label">Condition</label>
+                <select id="condition" name="condition" class="form-select" required>
+                    <option value="New">New</option>
+                    <option value="Used">Used</option>
+                    <option value="Refurbished">Refurbished</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="price" class="form-label">Price ($)</label>
+                <input type="number" id="price" name="price" class="form-control" required step="0.01">
+            </div>
+
+            <div class="mb-3">
+                <label for="details" class="form-label">Details</label>
+                <textarea id="details" name="details" class="form-control" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="image" class="form-label">Upload Image</label>
+                <input type="file" id="image" name="image" class="form-control" accept="image/*">
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="/items" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Create Item</button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>
