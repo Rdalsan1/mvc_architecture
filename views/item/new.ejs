@@ -1,47 +1,36 @@
 <%- include('../partials/header') %>
 
 <main>
-    <div class="container mt-5">
-        <h2 class="text-center">Add New Item</h2>
+    <div class="form-wrapper">
+        <h2 class="form-title">Sell an Item</h2>
 
-        <form action="/items" method="POST" enctype="multipart/form-data" class="mt-4">
-            <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" id="title" name="title" class="form-control" required>
-            </div>
+        <form action="/items" method="POST" enctype="multipart/form-data" class="new-form">
 
-            <div class="mb-3">
-                <label for="seller" class="form-label">Seller</label>
-                <input type="text" id="seller" name="seller" class="form-control" required>
-            </div>
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required>
 
-            <div class="mb-3">
-                <label for="condition" class="form-label">Condition</label>
-                <select id="condition" name="condition" class="form-select" required>
-                    <option value="New">New</option>
-                    <option value="Used">Used</option>
-                    <option value="Refurbished">Refurbished</option>
-                </select>
-            </div>
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
 
-            <div class="mb-3">
-                <label for="price" class="form-label">Price ($)</label>
-                <input type="number" id="price" name="price" class="form-control" required step="0.01">
-            </div>
+            <label for="condition">Condition</label>
+            <select id="condition" name="condition" required>
+                <option value="New">New</option>
+                <option value="Used">Used</option>
+                <option value="Refurbished">Refurbished</option>
+            </select>
 
-            <div class="mb-3">
-                <label for="details" class="form-label">Details</label>
-                <textarea id="details" name="details" class="form-control" required></textarea>
-            </div>
+            <label for="price">Price ($)</label>
+            <input type="number" id="price" name="price" required step="0.01">
 
-            <div class="mb-3">
-                <label for="image" class="form-label">Upload Image</label>
-                <input type="file" id="image" name="image" class="form-control" accept="image/*">
-            </div>
+            <label for="details">Details</label>
+            <textarea id="details" name="details" rows="4" required></textarea>
 
-            <div class="d-flex justify-content-between">
+            <label for="image">Upload Image</label>
+            <input type="file" id="image" name="image" accept="image/*">
+
+            <div class="form-buttons">
                 <a href="/items" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">Create Item</button>
+                <button type="submit" class="btn btn-primary">Create</button>
             </div>
         </form>
     </div>

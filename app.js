@@ -1,22 +1,22 @@
+//require modules
 const express = require('express');
-const app = express();
-const mongoose = require('mongoose');
-const methodOverride = require('method-override');
 const morgan = require('morgan');
+const methodOverride = require('method-override');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const flash = require('connect-flash');
+const itemRoutes = require('./routes/itemRoutes');
+const userRoutes = require('./routes/userRoutes');
 const path = require('path');
 
+const app = express();
 
-app.use(express.urlencoded({ extended: true })); 
-app.use(express.json()); 
-app.use(morgan('tiny'));
-app.use(methodOverride('_method')); 
-app.use(express.static(path.join(__dirname, 'public'))); 
-
-const mongoUri = 'mongodb+srv://<username>:<password>@cluster0.dnv07.mongodb.net/<database>?retryWrites=true&w=majority';
 let port = 3000;
 let host = 'localhost';
+app.set('view engine', 'ejs');
 
-mongoose.connect(mongoUri)
+mongoose.connect('mongodb+srv://rdalsan1:RajDa!2004@cluster0.dnv07.mongodb.net/project3?retryWrites=true&w=majority')
 .then(() => {
     app.listen(port, host, () =>{ 
         console.log(`Server running on port`, port);
@@ -25,18 +25,39 @@ mongoose.connect(mongoUri)
 .catch((err) => {
     console.log(err.message);
 });
-// View Engine
-app.set('view engine', 'ejs');
 
-const itemRoutes = require('./routes/itemRoutes');
+app.use(
+    session({
+        secret: "ajfeirf90aeu9eroejfoefj",
+        resave: false,
+        saveUninitialized: false,
+        store: new MongoStore({mongoUrl: 'mongodb+srv://rdalsan1:RajDa!2004@cluster0.dnv07.mongodb.net/project3?retryWrites=true&w=majority'}),
+        cookie: {maxAge: 60*60*1000}
+        })
+);
+app.use(flash());
+
+app.use((req, res, next) => {
+    //console.log(req.session);
+    res.locals.user = req.session.user||null;
+    res.locals.errorMessages = req.flash('error');
+    res.locals.successMessages = req.flash('success');
+    next();
+});
+
+app.use(express.urlencoded({ extended: true })); 
+app.use(express.json()); 
+app.use(morgan('tiny'));
+app.use(methodOverride('_method')); 
+app.use(express.static(path.join(__dirname, 'public'))); 
 
 app.get('/' , (req, res) => {
     res.render('index');
 })
-// Routes
-app.use('/items', itemRoutes);
 
-// Error Handling
+app.use('/items', itemRoutes);
+app.use('/users', userRoutes);
+
 app.use((req, res, next) => {
     let err = new Error("The server was not found " + req.url + ". Try a different part of the page.");
     err.status = 404;

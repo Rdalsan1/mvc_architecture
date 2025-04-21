@@ -33,13 +33,6 @@
             <textarea id="details" name="details" class="form-control" required><%= item.details %></textarea>
         </div>
 
-        <div class="mb-3">
-            <label for="active" class="form-label">Active Status</label>
-            <select id="active" name="active" class="form-select" required>
-                <option value="true" <%= item.active ? 'selected' : '' %>>Active</option>
-                <option value="false" <%= !item.active ? 'selected' : '' %>>Inactive</option>
-            </select>
-        </div>
 
         <div class="mb-3">
             <label for="image" class="form-label">Upload New Image (optional)</label>

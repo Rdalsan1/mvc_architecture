@@ -9,12 +9,16 @@
   "author": "Raj Dalsaniya",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^5.1.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "fs": "^0.0.1-security",
     "method-override": "^3.0.0",
-    "mongoose": "^8.13.0",
+    "mongoose": "^8.13.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.2",
     "path": "^0.12.7"

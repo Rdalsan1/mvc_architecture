@@ -1,7 +1,6 @@
 const Item = require('../models/item');
-
 exports.getAllItems = async (req, res, next) => {
-    Item.find()
+    Item.find().sort({price: 1})
         .then(items => {
             res.render('item/index', { items });
         })
@@ -27,7 +26,7 @@ exports.searchItems = (req, res, next) => {
         .then(items => {
             if (items.length === 0) {
                 const error = new Error('No items found for your search.');
-                error.status = 404; 
+                error.status = 500; 
                 return next(error); 
             }
             res.render('item/index', { items });
@@ -37,23 +36,38 @@ exports.searchItems = (req, res, next) => {
 
 
 exports.getNewItemForm = (req, res) => {
-    res.render('item/new');
+    res.render('item/new', (err, html) => {
+        if (err) {
+            return res.status(500).send("Failed to render form."); // or use next(err) if using centralized error handler
+        }
+        res.send(html);
+    });
 };
 
 exports.createItem = async (req, res, next) => {
-    const { title, seller, price, condition, details } = req.body;
-    const image = req.file ? req.file.filename : 'default.png';
+    const { title, price, name, condition, details } = req.body;
+    const seller = req.session.user;
 
-    const newItem = new Item({ title, condition, price, seller, details, image });
+    if (!title || !seller || !price || !condition || !details) {
+        return res.status(400).json({ error: "Missing required fields in request body." });
+    }
+
+    const image = req.file ? req.file.filename : 'default.png';
+    const newItem = new Item({ title, condition,name, price, seller, details, image });
 
     newItem.save()
-        .then(() => res.redirect("/items"))
-        .catch(err => next(err));
+    .then(() => res.redirect("/items"))
+    .catch(err => {
+        if(err.name === 'ValidationError'){
+            err.status = 400;
+        }
+        next(err)
+    });
 };
 
 
 exports.getItemDetails = async (req, res) => {
-    Item.findById(req.params.id)
+    Item.findById(req.params.id).populate('seller', 'firstName lastName')
         .then(item => {
             if (item) {
                 res.render('item/show', { item });
@@ -82,7 +96,7 @@ exports.updateItem = async (req, res) => {
         updatedItem.image = req.file.filename;
     }
 
-    Item.findByIdAndUpdate(req.params.id, updatedItem, { new: true })
+    Item.findByIdAndUpdate(req.params.id, updatedItem, { new: true, useFindAndModify: false, runValidators: true })
         .then(result => {
             if (result) {
                 res.redirect(`/items/${req.params.id}`);
@@ -90,12 +104,16 @@ exports.updateItem = async (req, res) => {
                 res.status(404).send("Item not found.");
             }
         })
-        .catch(err => next(err));
+        .catch(err => {
+            if(err.name === 'ValidationError')
+                err.status = 400;
+            next(err)
+        });
 };
 
 
 exports.deleteItem = async (req, res) => {
-    Item.findByIdAndDelete(req.params.id)
+    Item.findByIdAndDelete(req.params.id, {useFindAndModify: false})
         .then(result => {
             if (result) {
                 res.redirect('/items');
