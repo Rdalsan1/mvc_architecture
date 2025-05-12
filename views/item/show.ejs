@@ -1,6 +1,17 @@
 <%- include('../partials/header') %>
 
 <div class="container mt-5">
+    <% if (successMessages.length > 0) { %>
+        <div class="alert alert-success">
+            <%= successMessages.join('<br>') %>
+        </div>
+    <% } %>
+    <% if (errorMessages.length > 0) { %>
+        <div class="alert alert-danger">
+            <%= errorMessages.join('<br>') %>
+        </div>
+    <% } %>
+
     <h2 class="text-center"><%= item.title %></h2>
     <div class="row">
         <div class="col-md-6">
@@ -12,12 +23,49 @@
             <p><strong>Name:</strong> <%= item.name %></p>
             <p><strong>Details:</strong> <%= item.details %></p>
             <p><strong>Status:</strong> <%= item.active ? 'Active' : 'Inactive' %></p>
-            <p><small>Posted on: <%= item.createdAt %></small></p>
-            <div class="d-flex justify-content-between mt-4">
-                <a href="/items/<%= item._id %>/edit" class="btn btn-warning">Edit</a>
-                <form action="/items/<%= item._id %>?_method=DELETE" method="POST">
-                    <button type="submit" class="btn btn-danger">Delete</button>
+            <p><small>Posted on: <%= item.createdAt.toDateString() %></small></p>
+
+            <% if (item.totalOffers > 0) { %>
+                <p><strong>Total Offers:</strong> <%= item.totalOffers %></p>
+            <% } %>
+
+            <% if (item.active && item.totalOffers > 0) { %>
+                <p><strong>Highest Offer:</strong> $<%= item.highestOffer.toFixed(2) %></p>
+            <% } %>
+
+            <% if (!item.active) { %>
+                <p class="text-danger"><strong>This item is no longer available.</strong></p>
+            <% } %>
+
+            <% if (item.active && user && user !== item.seller.toString()) { %>
+                <form action="/items/<%= item._id %>/offers" method="POST" class="mt-4">
+                    <div class="form-group">
+                        <label for="amount">Your Offer ($):</label>
+                        <input 
+                            type="number" 
+                            name="amount" 
+                            step="0.01" 
+                            min="0.01" 
+                            required 
+                            class="form-control" 
+                            placeholder="Enter amount" 
+                            style="max-width: 200px;">
+                    </div>
+                    <button type="submit" class="btn btn-success mt-2">Make an Offer</button>
                 </form>
+            <% } %>
+
+            <% if (user && user === item.seller.toString()) { %>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="/items/<%= item._id %>/edit" class="btn btn-warning">Edit</a>
+                    <form action="/items/<%= item._id %>?_method=DELETE" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    
+                </div>
+            <% } %>
+
+            <div class="mt-3">
                 <a href="/items" class="btn btn-secondary">Back to Items</a>
             </div>
         </div>

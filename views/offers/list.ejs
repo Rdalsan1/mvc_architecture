@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+<h2>Offers for <%= item.title %></h2>
+<ul>
+  <% offers.forEach(offer => { %>
+    <li>
+      $<%= offer.amount.toFixed(2) %> by <%= offer.buyer.firstName %> <%= offer.buyer.lastName %>
+      <% if (item.active) { %>
+        <form action="/items/<%= item._id %>/offers/<%= offer._id %>/accept" method="POST" style="display:inline;">
+          <button type="submit">Accept</button>
+        </form>
+      <% } else { %>
+        - <%= offer.status.toUpperCase() %>
+      <% } %>
+    </li>
+  <% }) %>
+</ul>
+<%- include('../partials/footer') %>

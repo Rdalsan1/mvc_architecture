@@ -8,7 +8,9 @@ const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 const itemRoutes = require('./routes/itemRoutes');
 const userRoutes = require('./routes/userRoutes');
+const offerRoutes = require('./routes/offerRoutes');
 const path = require('path');
+
 
 const app = express();
 
@@ -57,6 +59,7 @@ app.get('/' , (req, res) => {
 
 app.use('/items', itemRoutes);
 app.use('/users', userRoutes);
+app.use('/offers', offerRoutes);
 
 app.use((req, res, next) => {
     let err = new Error("The server was not found " + req.url + ". Try a different part of the page.");

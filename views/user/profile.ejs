@@ -13,11 +13,26 @@
             <% items.forEach(item => { %>
                 <li>
                     <a href="/items/<%= item._id %>"><%= item.title %></a>
+                    <a href="/items/<%= item._id %>/offers" class="btn btn-secondary btn-sm ml-2">View Offers</a>
                 </li>
             <% }) %>
         </ul>
     <% } else { %>
         <p>You have not created any items.</p>
+    <% } %>
+    <h3>Your Offers</h3>
+    <% if (offersMade && offersMade.length > 0) { %>
+        <ul class="list-group">
+            <% offersMade.forEach(offer => { %>
+                <li class="list-group-item">
+                    Offered $<%= offer.amount.toFixed(2) %> on 
+                    <a href="/items/<%= offer.item._id %>"><%= offer.item.title %></a> — 
+                    Status: <strong><%= offer.status.charAt(0).toUpperCase() + offer.status.slice(1) %></strong>
+                </li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No offers made yet.</p>
     <% } %>
 </div>
 

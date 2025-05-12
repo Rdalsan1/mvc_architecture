@@ -1,13 +1,20 @@
 const Item = require('../models/item');
+const Offer = require('../models/offer');
 exports.getAllItems = async (req, res, next) => {
-    Item.find().sort({price: 1})
-        .then(items => {
-            res.render('item/index', { items });
+    Item.find({ active: true }).sort({ price: 1 }).populate('seller')
+        .then(async items => {
+            const itemsWithOffers = await Promise.all(items.map(async item => {
+                const offerCount = await Offer.countDocuments({ item: item._id });
+                return { ...item.toObject(), totalOffers: offerCount };
+            }));
+
+            res.render('item/index', { items: itemsWithOffers });
         })
         .catch(err => {
             next(err);
         });
 };
+
 
 
 exports.searchItems = (req, res, next) => {
@@ -37,8 +44,11 @@ exports.searchItems = (req, res, next) => {
 
 exports.getNewItemForm = (req, res) => {
     res.render('item/new', (err, html) => {
+        errorMessages = [];
+        successMessages = [];
+        oldInput = {};
         if (err) {
-            return res.status(500).send("Failed to render form."); // or use next(err) if using centralized error handler
+            return next(err);
         }
         res.send(html);
     });
@@ -47,36 +57,52 @@ exports.getNewItemForm = (req, res) => {
 exports.createItem = async (req, res, next) => {
     const { title, price, name, condition, details } = req.body;
     const seller = req.session.user;
+    const image = req.file ? req.file.filename : 'default.png';
+
 
     if (!title || !seller || !price || !condition || !details) {
-        return res.status(400).json({ error: "Missing required fields in request body." });
+        return res.status(400).send("Missing required fields");
     }
 
-    const image = req.file ? req.file.filename : 'default.png';
-    const newItem = new Item({ title, condition,name, price, seller, details, image });
+    const newItem = new Item({ title, price, name, condition, details, seller: seller._id || seller, image });
 
     newItem.save()
-    .then(() => res.redirect("/items"))
-    .catch(err => {
-        if(err.name === 'ValidationError'){
-            err.status = 400;
-        }
-        next(err)
-    });
+        .then(() => {
+            req.flash('success', 'Item created successfully!');
+            res.redirect("/items");
+        })
+        .catch(err => {
+            if (err.name === 'ValidationError') {
+                err.status = 400;
+            }
+            next(err);
+        });
 };
 
 
-exports.getItemDetails = async (req, res) => {
-    Item.findById(req.params.id).populate('seller', 'firstName lastName')
+
+exports.getItemDetails = (req, res, next) => {
+    Item.findById(req.params.id)
+        .populate('seller', 'firstName lastName')
         .then(item => {
-            if (item) {
-                res.render('item/show', { item });
-            } else {
-                res.status(404).send("Item not found.");
+            if (!item) {
+                const err = new Error("Item not found.");
+                err.status = 404;
+                throw err;
             }
+            res.render('item/show', {
+                item,
+                user: req.session.user || null,
+                successMessages: req.flash('success') || [],
+                errorMessages: req.flash('error') || []
+            });
         })
         .catch(err => next(err));
 };
+
+
+
+
 
 exports.getEditItemForm = async (req, res) => {
     Item.findById(req.params.id)
@@ -99,6 +125,7 @@ exports.updateItem = async (req, res) => {
     Item.findByIdAndUpdate(req.params.id, updatedItem, { new: true, useFindAndModify: false, runValidators: true })
         .then(result => {
             if (result) {
+                req.flash('success', 'Item updated successfully!');
                 res.redirect(`/items/${req.params.id}`);
             } else {
                 res.status(404).send("Item not found.");
@@ -112,14 +139,43 @@ exports.updateItem = async (req, res) => {
 };
 
 
-exports.deleteItem = async (req, res) => {
-    Item.findByIdAndDelete(req.params.id, {useFindAndModify: false})
-        .then(result => {
-            if (result) {
-                res.redirect('/items');
-            } else {
-                res.status(404).send("item could not be found");
-            }
-        })
-        .catch(err => next(err));
+exports.deleteItem = (req, res, next) => {
+    const itemId = req.params.id;
+   
+    if (!itemId || itemId.length !== 24) {
+        const err = new Error("Invalid item ID");
+        err.status = 400;
+        return next(err);
+    }
+
+    Promise.all([
+        Offer.deleteMany({ item: itemId })
+            .then(result => {
+                return result;
+            })
+            .catch(err => {
+                throw err;
+            }),
+
+        Item.findByIdAndDelete(itemId)
+            .then(item => {
+                if (!item) console.error(" Item not found");
+                else console.log(` Item deleted: ${item._id}`);
+                return item;
+            })
+            .catch(err => {
+                throw err;
+            })
+    ])
+    .then(([offersDeleted, itemDeleted]) => {
+        if (!itemDeleted) {
+            return res.status(404).send("Item not found.");
+        }
+
+        req.flash('success', 'Item and associated offers deleted successfully!');
+        res.redirect('/items');
+    })
+    .catch(err => {
+        next(err);
+    });
 };

@@ -4,26 +4,56 @@
     <div class="form-wrapper">
         <h2 class="form-title">Sell an Item</h2>
 
-        <form action="/items" method="POST" enctype="multipart/form-data" class="new-form">
+        <% if (errorMessages && errorMessages.length > 0) { %>
+            <div class="alert alert-danger">
+                <ul>
+                    <% errorMessages.forEach(msg => { %>
+                        <li><%= msg %></li>
+                    <% }) %>
+                </ul>
+            </div>
+        <% } %>
 
+        <form action="/items" method="POST" enctype="multipart/form-data" class="new-form">
             <label for="title">Title</label>
-            <input type="text" id="title" name="title" required>
+            <input 
+                type="text" 
+                id="title" 
+                name="title" 
+                required 
+                value="<%= oldInput?.title || '' %>">
 
             <label for="name">Name</label>
-            <input type="text" id="name" name="name" required>
+            <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                required 
+                value="<%= oldInput?.name || '' %>">
 
             <label for="condition">Condition</label>
             <select id="condition" name="condition" required>
-                <option value="New">New</option>
-                <option value="Used">Used</option>
-                <option value="Refurbished">Refurbished</option>
+                <option value="">Select one</option>
+                <option value="New" <%= oldInput?.condition === 'New' ? 'selected' : '' %>>New</option>
+                <option value="Used" <%= oldInput?.condition === 'Used' ? 'selected' : '' %>>Used</option>
+                <option value="Refurbished" <%= oldInput?.condition === 'Refurbished' ? 'selected' : '' %>>Refurbished</option>
             </select>
 
             <label for="price">Price ($)</label>
-            <input type="number" id="price" name="price" required step="0.01">
+            <input 
+                type="number" 
+                id="price" 
+                name="price" 
+                required 
+                step="0.01" 
+                value="<%= oldInput?.price || '' %>">
 
             <label for="details">Details</label>
-            <textarea id="details" name="details" rows="4" required></textarea>
+            <textarea 
+                id="details" 
+                name="details" 
+                rows="4" 
+                required><%= oldInput?.details || '' %></textarea>
 
             <label for="image">Upload Image</label>
             <input type="file" id="image" name="image" accept="image/*">
