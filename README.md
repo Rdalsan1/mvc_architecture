@@ -4,8 +4,8 @@ Follow the steps below to run the application locally.
 
 Clone the repository:
 
-git clone <your-repo-url>
-cd <your-project-folder>
+git clone your-repo-url
+cd your-project-folder
 
 
 Install required dependencies:
